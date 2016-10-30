@@ -21,7 +21,7 @@ public class ClientNetworkMgr : NetworkManager
     [HideInInspector]
     public string netErrorInfo = "";
 
-    public string hostIP;//网络中姿态控制主机的IP
+    public string hostIP;//网络中姿态控制主机的IP后三位
 
     [HideInInspector]
     public string localIP = "";//IP后三位
@@ -45,7 +45,7 @@ public class ClientNetworkMgr : NetworkManager
             }
         }
         return localNetPlayer;
-    } 
+    }
 
     public override void OnClientConnect(NetworkConnection conn)
     {

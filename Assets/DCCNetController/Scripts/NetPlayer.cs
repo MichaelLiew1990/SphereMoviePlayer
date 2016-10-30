@@ -2,16 +2,14 @@
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 
+public enum PlatformCommand
+{
+    ContentStarted,
+    ContentStoped
+}
+
 public class NetPlayer : NetworkBehaviour
 {
-    [SyncVar]
-    //[HideInInspector]
-    public float sync_H;//服务器更新客户端读取
-    [SyncVar]
-    //[HideInInspector]
-    public float sync_V;//服务器更新客户端读取
-    
-
     //下面的不成功，因为外面获取hostIP值时LocalPlayer并不一定有值，有可能跟服务端调用哪个NetPlayer组件发送消息有关
     //public string hostIP;//用于发送姿态的主客户端（IP后三位）
     //[SyncVar]
@@ -30,34 +28,38 @@ public class NetPlayer : NetworkBehaviour
     }
 
     [Command]
-    public void CmdMovieEnd()
+    public void CmdPlatformServerExec(PlatformCommand cmd, string arg)
     {
         //客户端不需要实现
     }
 
+    string sceneName;
     [ClientRpc]
-    void RpcStartGame(string sceneName)
+    void RpcStartGame(string name)
     {
+        sceneName = name;
         SceneManager.LoadScene("1_Game" + sceneName);
+        Invoke("InvokePlayMovie", 3f);
+    }
+    
+    void InvokePlayMovie()
+    {
+        CmdPlatformServerExec(PlatformCommand.ContentStarted, "");
+        MovieControl ctrl = GameObject.FindObjectOfType<MovieControl>();
+        if (ctrl != null)
+        {
+            ctrl.PlayVedio(sceneName);
+        }
     }
 
     [ClientRpc]
     void RpcStopGame()
     {
+        CmdPlatformServerExec(PlatformCommand.ContentStoped, "");
         MovieControl mc = GameObject.FindObjectOfType<MovieControl>();
         if (mc!=null)
         {
             mc.MovieEnd();
-        }
-    }
-
-    [ClientRpc]
-    void RpcPlayMovie(string mp4Name)
-    {
-        MovieControl ctrl = GameObject.FindObjectOfType<MovieControl>();
-        if (ctrl != null)
-        {
-            ctrl.PlayVedio(mp4Name);
         }
     }
 
@@ -72,5 +74,17 @@ public class NetPlayer : NetworkBehaviour
 
         //每次更新host时将服务端姿态置为初始值
         CmdUpdateCarPose(Quaternion.identity, Vector3.zero, "xxx");
+    }
+
+    [ClientRpc]
+    void RpcGameAlreadyStart()
+    {
+        //TV端实现
+    }
+
+    [ClientRpc]
+    void RpcGameAlreadyStop()
+    {
+        //TV端实现
     }
 }

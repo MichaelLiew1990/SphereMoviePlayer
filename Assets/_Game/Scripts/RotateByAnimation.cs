@@ -79,7 +79,7 @@ public class RotateByAnimation : MonoBehaviour
         {
             if (net.hostIP == net.localIP || net.localIP == "0.0")
             {
-                net.GetNetPlayer().CmdMovieEnd();
+                net.GetNetPlayer().CmdPlatformServerExec(PlatformCommand.ContentStoped, "");
             }
         }
     }
